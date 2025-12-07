@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Tracker Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        /* --- General Reset --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Roboto', sans-serif; background-color: #ffffff; }
+
+        /* --- Header --- */
+        .header {
+            background-color: #7b0000; /* Deep Red */
+            height: 200px;
+            position: relative;
+        }
+
+        /* --- Settings Button (Top Right) --- */
+        .settings-btn {
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: black;
+            z-index: 100;
+        }
+        .settings-btn:hover { transform: scale(1.05); }
+
+        /* --- Main Layout Container --- */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+            display: flex;
+            flex-direction: column; /* Stacks items vertically instead of side-by-side */
+            gap: 40px; /* Space between the Blue Info Card and Gray Stats Bar */
+        }
+
+        /* --- Profile Picture --- */
+        .profile-pic-container {
+            width: 200px;
+            height: 200px;
+            background-color: white;
+            border: 3px solid #000;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-top: -100px; /* Pulls circle up into header */
+            margin-bottom: 20px; /* Space before the blue card starts */
+        }
+
+        /* --- Wide Info Card (Blue) --- */
+        .info-card {
+            background-color: #1a6b8f; /* Teal Blue */
+            color: black;
+            border-radius: 30px;
+            padding: 40px;
+            min-height: 300px; /* As per drawing */
+            border: 2px solid #000;
+            width: 100%; /* Full Width */
+            
+            /* Layout inside the Blue Card */
+            display: flex;
+            justify-content: space-between; /* Pushes Name to left, About Me to center/right */
+            align-items: flex-start;
+        }
+
+        .info-left {
+            flex: 1;
+        }
+        
+        .info-center {
+            flex: 2;
+            text-align: center; /* Centers the 'About Me' text */
+            padding-right: 100px; /* Visual balance */
+        }
+
+        .info-card h1 { font-size: 3rem; margin-bottom: 5px; }
+        .info-card .username { font-size: 1.5rem; opacity: 0.8; }
+        .info-card h2 { font-size: 3rem; margin-bottom: 20px; }
+
+        /* --- Wide Stats Bar (Gray) --- */
+        .stats-container {
+            background-color: #555555; /* Dark Gray */
+            border-radius: 50px;
+            padding: 40px;
+            border: 2px solid #000;
+            width: 100%; /* Full Width */
+            
+            /* Horizontal Layout for Cards */
+            display: flex;
+            justify-content: space-between; /* Spreads cards out evenly */
+            flex-wrap: wrap; /* Allows wrapping on mobile screens */
+            gap: 20px;
+        }
+
+        .stat-card {
+            background-color: #1a6b8f; /* Teal Blue */
+            width: 180px; /* Slightly smaller to fit 5 in a row */
+            height: 120px;
+            border-radius: 20px;
+            border: 2px solid #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: transform 0.2s;
+            flex-grow: 1; /* Allows cards to fill space nicely */
+            max-width: 220px; /* Prevents them from getting too huge */
+        }
+
+        .stat-card:hover { transform: translateY(-5px); }
+        .stat-title { font-size: 1.3rem; margin-bottom: 10px; color: black; }
+        .stat-count { font-size: 0.9rem; color: black; }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 900px) {
+            .header { height: 150px; }
+            .profile-pic-container { margin-top: -75px; width: 150px; height: 150px; }
+            
+            .info-card { 
+                flex-direction: column; /* Stack name and about me on mobile */
+                text-align: center;
+                gap: 30px;
+            }
+            .info-center { padding-right: 0; }
+            
+            .stats-container { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="settings-btn">
+            <span>Settings</span>
+            <i class="fa-solid fa-gear fa-lg"></i>
+        </div>
+    </header>
+
+    <div class="main-container">
+        
+        <div class="profile-pic-container">
+            Profile Picture
+        </div>
+        
+        <div class="info-card">
+            <div class="info-left">
+                <h1>Name</h1>
+                <div class="username">Username</div>
+            </div>
+            
+            <div class="info-center">
+                <h2>About me</h2>
+                <p>This is where your bio text will go.</p>
+            </div>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-title">Anime</div>
+                <div class="stat-count">No of Animes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Manga</div>
+                <div class="stat-count">No of Manga</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Game</div>
+                <div class="stat-count">No of Games</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Movies</div>
+                <div class="stat-count">No of Movies</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">TV Shows</div>
+                <div class="stat-count">No of TV Shows</div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
