@@ -19,21 +19,40 @@
             position: relative;
         }
 
-        /* --- Settings Button (Top Right) --- */
-        .settings-btn {
+        /* --- HEADER BUTTONS CONTAINER --- */
+        /* This wrapper holds both buttons and positions them together */
+        .header-controls {
             position: absolute;
             top: 20px;
             right: 40px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1.2rem;
-            color: black;
+            display: flex; /* Aligns buttons side-by-side */
+            gap: 20px; /* Space between Settings and Logout */
             z-index: 100;
         }
-        .settings-btn:hover { transform: scale(1.05); }
+
+        /* Common Style for both buttons */
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: black; /* Default color */
+            transition: transform 0.2s, color 0.2s;
+            background: none;
+            border: none; /* Remove default button borders */
+            font-family: inherit; /* Inherit font from body */
+        }
+
+        .nav-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Specific Hover Color for Logout (Red warning color) */
+        .logout-btn:hover {
+            color: #ffcccc; /* Light red/white on hover */
+        }
 
         /* --- Main Layout Container --- */
         .main-container {
@@ -41,8 +60,8 @@
             margin: 0 auto;
             padding: 0 40px;
             display: flex;
-            flex-direction: column; /* Stacks items vertically instead of side-by-side */
-            gap: 40px; /* Space between the Blue Info Card and Gray Stats Bar */
+            flex-direction: column;
+            gap: 40px;
         }
 
         /* --- Profile Picture --- */
@@ -58,58 +77,52 @@
             text-align: center;
             font-weight: bold;
             font-size: 1.2rem;
-            margin-top: -100px; /* Pulls circle up into header */
-            margin-bottom: 20px; /* Space before the blue card starts */
+            margin-top: -100px;
+            margin-bottom: 20px;
         }
 
-        /* --- Wide Info Card (Blue) --- */
+        /* --- Info Card --- */
         .info-card {
             background-color: #1a6b8f; /* Teal Blue */
             color: black;
             border-radius: 30px;
             padding: 40px;
-            min-height: 300px; /* As per drawing */
+            min-height: 300px;
             border: 2px solid #000;
-            width: 100%; /* Full Width */
-            
-            /* Layout inside the Blue Card */
+            width: 100%;
             display: flex;
-            justify-content: space-between; /* Pushes Name to left, About Me to center/right */
+            justify-content: space-between;
             align-items: flex-start;
         }
 
-        .info-left {
-            flex: 1;
-        }
+        .info-left { flex: 1; }
         
         .info-center {
             flex: 2;
-            text-align: center; /* Centers the 'About Me' text */
-            padding-right: 100px; /* Visual balance */
+            text-align: center;
+            padding-right: 100px;
         }
 
         .info-card h1 { font-size: 3rem; margin-bottom: 5px; }
         .info-card .username { font-size: 1.5rem; opacity: 0.8; }
         .info-card h2 { font-size: 3rem; margin-bottom: 20px; }
 
-        /* --- Wide Stats Bar (Gray) --- */
+        /* --- Stats Bar --- */
         .stats-container {
             background-color: #555555; /* Dark Gray */
             border-radius: 50px;
             padding: 40px;
             border: 2px solid #000;
-            width: 100%; /* Full Width */
-            
-            /* Horizontal Layout for Cards */
+            width: 100%;
             display: flex;
-            justify-content: space-between; /* Spreads cards out evenly */
-            flex-wrap: wrap; /* Allows wrapping on mobile screens */
+            justify-content: space-between;
+            flex-wrap: wrap;
             gap: 20px;
         }
 
         .stat-card {
-            background-color: #1a6b8f; /* Teal Blue */
-            width: 180px; /* Slightly smaller to fit 5 in a row */
+            background-color: #1a6b8f;
+            width: 180px;
             height: 120px;
             border-radius: 20px;
             border: 2px solid #000;
@@ -120,36 +133,39 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             cursor: pointer;
             transition: transform 0.2s;
-            flex-grow: 1; /* Allows cards to fill space nicely */
-            max-width: 220px; /* Prevents them from getting too huge */
+            flex-grow: 1;
+            max-width: 220px;
         }
 
         .stat-card:hover { transform: translateY(-5px); }
         .stat-title { font-size: 1.3rem; margin-bottom: 10px; color: black; }
         .stat-count { font-size: 0.9rem; color: black; }
 
-        /* --- Responsive Design --- */
         @media (max-width: 900px) {
             .header { height: 150px; }
             .profile-pic-container { margin-top: -75px; width: 150px; height: 150px; }
-            
-            .info-card { 
-                flex-direction: column; /* Stack name and about me on mobile */
-                text-align: center;
-                gap: 30px;
-            }
+            .info-card { flex-direction: column; text-align: center; gap: 30px; }
             .info-center { padding-right: 0; }
-            
             .stats-container { justify-content: center; }
+            .header-controls { right: 20px; gap: 15px; } /* Tighten spacing on mobile */
         }
     </style>
 </head>
 <body>
 
     <header class="header">
-        <div class="settings-btn">
-            <span>Settings</span>
-            <i class="fa-solid fa-gear fa-lg"></i>
+        <div class="header-controls">
+            
+            <button class="nav-btn">
+                <span>Settings</span>
+                <i class="fa-solid fa-gear fa-lg"></i>
+            </button>
+
+            <button class="nav-btn logout-btn" onclick="alert('Logging out...')">
+                <span>Logout</span>
+                <i class="fa-solid fa-right-from-bracket fa-lg"></i>
+            </button>
+
         </div>
     </header>
 
@@ -174,23 +190,23 @@
         <div class="stats-container">
             <div class="stat-card">
                 <div class="stat-title">Anime</div>
-                <div class="stat-count">No of Animes</div>
+                <div class="stat-count">0</div>
             </div>
             <div class="stat-card">
                 <div class="stat-title">Manga</div>
-                <div class="stat-count">No of Manga</div>
+                <div class="stat-count">0</div>
             </div>
             <div class="stat-card">
                 <div class="stat-title">Game</div>
-                <div class="stat-count">No of Games</div>
+                <div class="stat-count">0</div>
             </div>
             <div class="stat-card">
                 <div class="stat-title">Movies</div>
-                <div class="stat-count">No of Movies</div>
+                <div class="stat-count">0</div>
             </div>
             <div class="stat-card">
                 <div class="stat-title">TV Shows</div>
-                <div class="stat-count">No of TV Shows</div>
+                <div class="stat-count">0</div>
             </div>
         </div>
 
