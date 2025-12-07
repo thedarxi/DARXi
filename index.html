@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Private Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    
+    <style>
+        body { @apply bg-gray-900 text-gray-100 font-sans; }
+        .tab-button.active { @apply bg-indigo-600 text-white font-semibold shadow-lg shadow-indigo-500/30; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen relative">
+
+    <div id="login-screen" class="fixed inset-0 bg-gray-900 z-50 flex flex-col items-center justify-center p-4">
+        <div class="w-full max-w-md bg-gray-800 p-8 rounded-2xl shadow-2xl border border-gray-700">
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">MediaHub</h1>
+                <p class="text-gray-400 mt-2 text-sm">Private Secure Tracker</p>
+            </div>
+
+            <button id="google-btn" class="w-full bg-white text-gray-900 py-3 rounded-lg font-bold hover:bg-gray-200 transition shadow-md flex items-center justify-center gap-3 mb-6">
+                <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="currentColor" d="M21.35 11.1h-9.17v2.73h6.51c-.33 3.81-3.5 5.44-6.5 5.44C8.36 19.27 5 16.25 5 12c0-4.1 3.2-7.27 7.2-7.27c3.09 0 4.9 1.97 4.9 1.97L19 4.72S16.56 2 12.1 2C6.42 2 2.03 6.8 2.03 12c0 5.05 4.13 10 10.22 10c5.35 0 9.25-3.67 9.25-9.09c0-1.15-.15-1.81-.15-1.81z"/></svg>
+                Sign in with Google
+            </button>
+
+            <div class="relative flex py-2 items-center mb-6">
+                <div class="flex-grow border-t border-gray-600"></div>
+                <span class="flex-shrink mx-4 text-gray-500 text-xs uppercase">Or with email</span>
+                <div class="flex-grow border-t border-gray-600"></div>
+            </div>
+
+            <form id="email-form" class="space-y-4">
+                <input type="email" id="email-in" placeholder="Email Address" class="w-full p-3 rounded bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:outline-none text-white placeholder-gray-400">
+                <input type="password" id="pass-in" placeholder="Password" class="w-full p-3 rounded bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:outline-none text-white placeholder-gray-400">
+                
+                <div class="flex gap-3">
+                    <button type="button" id="login-email-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 rounded-lg transition">Log In</button>
+                    <button type="button" id="signup-email-btn" class="flex-1 bg-gray-700 hover:bg-gray-600 text-gray-300 font-bold py-2 rounded-lg transition">Register</button>
+                </div>
+                <p id="login-error" class="text-red-400 text-xs text-center hidden"></p>
+            </form>
+        </div>
+    </div>
+
+    <div id="app-content" class="hidden max-w-7xl mx-auto">
+        <header class="flex justify-between items-center mb-10">
+            <div>
+                <h1 class="text-3xl font-bold text-indigo-400">My Tracker</h1>
+                <p class="text-gray-500 text-sm">Logged in as <span id="user-name">User</span></p>
+            </div>
+            <button id="logout-btn" class="text-sm text-gray-400 hover:text-white border border-gray-700 px-3 py-1 rounded">Sign Out</button>
+        </header>
+
+        <div id="tabs" class="flex flex-wrap justify-center gap-2 mb-8 bg-gray-800 p-2 rounded-xl w-fit mx-auto">
+            <button class="tab-button bg-transparent text-gray-400 hover:text-white text-sm py-2 px-6 rounded-lg transition active" data-category="Anime">Anime</button>
+            <button class="tab-button bg-transparent text-gray-400 hover:text-white text-sm py-2 px-6 rounded-lg transition" data-category="Manga">Manga</button>
+            <button class="tab-button bg-transparent text-gray-400 hover:text-white text-sm py-2 px-6 rounded-lg transition" data-category="Movies">Movies</button>
+            <button class="tab-button bg-transparent text-gray-400 hover:text-white text-sm py-2 px-6 rounded-lg transition" data-category="Series">TV Series</button>
+        </div>
+
+        <main id="media-content" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"></main>
+    </div>
+
+    <div id="add-form-container" class="hidden fixed bottom-8 right-8 z-40">
+        <button id="show-form-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white w-14 h-14 rounded-full text-3xl shadow-lg shadow-indigo-500/40 transition transform hover:scale-105 flex items-center justify-center pb-1">+</button>
+        
+        <div id="custom-form" class="hidden bg-gray-800 border border-gray-700 p-6 rounded-xl shadow-2xl w-80 absolute bottom-16 right-0 backdrop-blur-sm bg-opacity-95">
+            <h2 class="text-lg font-bold mb-4 text-white">Add Entry</h2>
+            <form id="media-form" class="space-y-3">
+                <input type="text" id="title" placeholder="Title" required class="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:outline-none text-sm">
+                <input type="url" id="image-url" placeholder="Image URL (Optional)" class="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:outline-none text-sm">
+                <select id="category" required class="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:outline-none text-sm">
+                    <option value="Anime">Anime</option>
+                    <option value="Manga">Manga</option>
+                    <option value="Movies">Movies</option>
+                    <option value="Series">TV Series</option>
+                </select>
+                <select id="status" required class="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:border-indigo-500 focus:outline-none text-sm">
+                    <option value="Watching">Watching / Reading</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Planned">Plan to Watch</option>
+                    <option value="Dropped">Dropped</option>
+                </select>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 rounded-lg text-sm shadow-md">Save</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // -----------------------------------------------------------
+        // 1. FIREBASE CONFIGURATION
+        // -----------------------------------------------------------
+const firebaseConfig = {
+  apiKey: "AIzaSyDUvuBTVPoUHDd9Meff9yK7Jdy5myI1HSU",
+  authDomain: "thedarxi.firebaseapp.com",
+  projectId: "thedarxi",
+  storageBucket: "thedarxi.firebasestorage.app",
+  messagingSenderId: "13279615906",
+  appId: "1:13279615906:web:aa97b4634a0c5eb4db30fb",
+  measurementId: "G-P8RGCQCT60"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+        let currentUser = null;
+        let activeCategory = 'Anime';
+
+        // -----------------------------------------------------------
+        // 2. AUTH LOGIC (GOOGLE + EMAIL)
+        // -----------------------------------------------------------
+        const loginScreen = document.getElementById('login-screen');
+        const appContent = document.getElementById('app-content');
+        const addContainer = document.getElementById('add-form-container');
+        const errorMsg = document.getElementById('login-error');
+
+        // Handle Auth State Changes
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                // Use email if display name is null (common with email/pass login)
+                const name = user.displayName ? user.displayName.split(" ")[0] : user.email.split("@")[0];
+                document.getElementById('user-name').innerText = name;
+                
+                loginScreen.classList.add('hidden');
+                appContent.classList.remove('hidden');
+                addContainer.classList.remove('hidden');
+                loadMedia(activeCategory);
+            } else {
+                currentUser = null;
+                loginScreen.classList.remove('hidden');
+                appContent.classList.add('hidden');
+                addContainer.classList.add('hidden');
+            }
+        });
+
+        // Button Actions
+        document.getElementById('google-btn').addEventListener('click', () => {
+            auth.signInWithPopup(googleProvider).catch(err => showError(err.message));
+        });
+
+        document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
+
+        // Email Login Logic
+        document.getElementById('login-email-btn').addEventListener('click', () => {
+            const email = document.getElementById('email-in').value;
+            const pass = document.getElementById('pass-in').value;
+            auth.signInWithEmailAndPassword(email, pass).catch(err => showError(err.message));
+        });
+
+        // Email Register Logic
+        document.getElementById('signup-email-btn').addEventListener('click', () => {
+            const email = document.getElementById('email-in').value;
+            const pass = document.getElementById('pass-in').value;
+            auth.createUserWithEmailAndPassword(email, pass)
+                .then((userCredential) => {
+                    // Optional: You can set a display name here if you want
+                    // userCredential.user.updateProfile({ displayName: "MyName" });
+                })
+                .catch(err => showError(err.message));
+        });
+
+        function showError(msg) {
+            errorMsg.innerText = msg;
+            errorMsg.classList.remove('hidden');
+        }
+
+        // -----------------------------------------------------------
+        // 3. UI & DATABASE LOGIC (unchanged)
+        // -----------------------------------------------------------
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', function() {
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                activeCategory = this.getAttribute('data-category');
+                loadMedia(activeCategory);
+            });
+        });
+
+        const showFormBtn = document.getElementById('show-form-btn');
+        const customForm = document.getElementById('custom-form');
+        showFormBtn.addEventListener('click', () => customForm.classList.toggle('hidden'));
+
+        document.getElementById('media-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+            const title = document.getElementById('title').value;
+            const cat = document.getElementById('category').value;
+            const status = document.getElementById('status').value;
+            const img = document.getElementById('image-url').value || null;
+
+            db.collection('users').doc(currentUser.uid).collection('media').add({
+                title: title, category: cat, status: status, image: img,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                document.getElementById('media-form').reset();
+                customForm.classList.add('hidden');
+            });
+        });
+
+        window.deleteEntry = function(id) {
+            if(confirm('Delete this entry?')) {
+                db.collection('users').doc(currentUser.uid).collection('media').doc(id).delete();
+            }
+        }
+
+        let unsubscribe = null;
+        function loadMedia(category) {
+            const contentArea = document.getElementById('media-content');
+            contentArea.innerHTML = '<p class="text-gray-500 animate-pulse">Loading...</p>';
+            if (unsubscribe) unsubscribe();
+
+            unsubscribe = db.collection('users').doc(currentUser.uid).collection('media')
+                .where("category", "==", category)
+                .orderBy("timestamp", "desc")
+                .onSnapshot(snapshot => {
+                    contentArea.innerHTML = '';
+                    if (snapshot.empty) {
+                        contentArea.innerHTML = `<div class="col-span-full text-center text-gray-500 py-20">No ${category} found.</div>`;
+                        return;
+                    }
+                    snapshot.forEach(doc => {
+                        contentArea.innerHTML += createMediaCard(doc.data(), doc.id);
+                    });
+                });
+        }
+
+        function createMediaCard(item, id) {
+            let statusColor = item.status === 'Completed' ? 'bg-green-500/20 text-green-400 border-green-500/30' 
+                          : item.status === 'Watching' ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30'
+                          : 'bg-gray-700 text-gray-400';
+            const bgImage = item.image ? `background-image: url('${item.image}');` : '';
+            const noImgClass = item.image ? '' : 'bg-gray-800';
+
+            return `
+                <div class="media-card relative group bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-700 fade-in">
+                    <button onclick="deleteEntry('${id}')" class="absolute top-2 right-2 z-20 bg-black/60 text-red-400 p-2 rounded-full hover:bg-red-600 hover:text-white transition backdrop-blur-sm shadow-md border border-white/10">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
+                    <div class="h-48 bg-cover bg-center ${noImgClass} relative" style="${bgImage}">
+                        ${!item.image ? `<div class="flex items-center justify-center h-full text-gray-600 font-bold text-xl">${item.title[0]}</div>` : ''}
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent"></div>
+                        <span class="absolute bottom-2 left-2 ${statusColor} text-xs font-bold px-2 py-1 rounded border backdrop-blur-md">${item.status}</span>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-lg font-bold text-gray-100 truncate">${item.title}</h3>
+                        <p class="text-xs text-gray-500 mt-1 uppercase tracking-wider">${item.category}</p>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
